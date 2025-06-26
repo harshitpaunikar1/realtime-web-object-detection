@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Web Object Detection Deployment Walkthrough</title>
+  <meta name="description" content="A self-contained monochrome walkthrough for deploying browser-based object detection with capture cadence, in-browser inference, evidence logging, and operator reporting.">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    :root {
+      --paper: #f3f3f3;
+      --panel: #ebebeb;
+      --panel-2: #dfdfdf;
+      --ink: #111111;
+      --muted: #5b5b5b;
+      --rule: #b9b9b9;
+      --hard-rule: #7b7b7b;
+      --black: #000000;
+      --white: #ffffff;
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, #ffffff 0%, #f0f0f0 30%, #ececec 100%);
+      color: var(--ink);
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page {
+      width: min(1180px, calc(100vw - 2rem));
+      margin: 0 auto;
+      padding: 2rem 0 4rem;
+    }
+
+    .hero {
+      padding: 2rem 0 1.25rem;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .eyebrow,
+    .station-tag,
+    .mini-label,
+    .caption-kicker,
+    .code-label,
+    th {
+      font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow {
+      margin: 0 0 1rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      font-weight: 650;
+      line-height: 1.08;
+    }
+
+    h1 {
+      max-width: 13ch;
+      font-size: clamp(3rem, 7vw, 5.6rem);
+      letter-spacing: -0.05em;
+    }
+
+    .lede {
+      max-width: 72ch;
+      margin: 1.4rem 0 0;
+      font-size: 1.14rem;
+      color: #1f1f1f;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+      gap: 1.4rem;
+      margin-top: 1.8rem;
+    }
+
+    .hero-note,
+    .build-structure,
+    .station,
+    .code-block,
+    .table-wrap {
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid var(--rule);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(2px);
+    }
+
+    .hero-note {
+      padding: 1.25rem;
+    }
+
+    .hero-note p {
+      margin: 0.4rem 0 0;
+    }
+
+    .build-structure {
+      padding: 1.15rem;
+    }
+
+    .build-structure ol {
+      margin: 0.9rem 0 0;
+      padding-left: 1.25rem;
+    }
+
+    .build-structure li + li {
+      margin-top: 0.5rem;
+    }
+
+    .station {
+      margin-top: 1.4rem;
+      padding: 1.5rem;
+      border-left: 6px solid var(--black);
+    }
+
+    .station-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .station-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.24rem 0.55rem;
+      background: var(--black);
+      color: var(--white);
+      font-size: 0.75rem;
+    }
+
+    h2 {
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      letter-spacing: -0.04em;
+    }
+
+    p {
+      margin: 0.85rem 0 0;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.9fr);
+      gap: 1.15rem;
+      align-items: start;
+    }
+
+    .metric-strip,
+    .check-grid,
+    .log-grid {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .metric-strip {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 1rem;
+    }
+
+    .metric {
+      padding: 0.9rem;
+      background: var(--panel);
+      border: 1px solid var(--rule);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.4rem;
+      margin-top: 0.28rem;
+    }
+
+    .check-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 1rem;
+    }
+
+    .check-card,
+    .log-card {
+      padding: 1rem;
+      background: var(--panel);
+      border: 1px solid var(--rule);
+    }
+
+    .mini-label {
+      color: var(--muted);
+      font-size: 0.73rem;
+    }
+
+    ul,
+    ol {
+      margin: 0.9rem 0 0;
+    }
+
+    li + li {
+      margin-top: 0.48rem;
+    }
+
+    .wide-figure {
+      margin: 1.4rem 0 0;
+      padding: 1rem;
+      background: linear-gradient(180deg, #fcfcfc 0%, #ececec 100%);
+      border: 1px solid var(--rule);
+      box-shadow: var(--shadow);
+      overflow-x: auto;
+    }
+
+    .wide-figure svg {
+      display: block;
+      width: 100%;
+      min-width: 960px;
+      height: auto;
+    }
+
+    figcaption {
+      margin-top: 0.85rem;
+      padding: 0.7rem 1rem;
+      background: var(--black);
+      color: var(--white);
+      clip-path: polygon(0 0, calc(100% - 1rem) 0, 100% 50%, calc(100% - 1rem) 100%, 0 100%);
+      font-size: 0.93rem;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .caption-kicker {
+      display: inline-block;
+      margin-right: 0.8rem;
+      color: #cfcfcf;
+      font-size: 0.74rem;
+    }
+
+    .code-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .code-block {
+      overflow: hidden;
+    }
+
+    .code-label {
+      padding: 0.75rem 0.95rem;
+      border-bottom: 1px solid var(--rule);
+      background: #f7f7f7;
+      color: var(--muted);
+      font-size: 0.74rem;
+    }
+
+    pre {
+      margin: 0;
+      padding: 1rem;
+      overflow-x: auto;
+      background: #fdfdfd;
+      color: var(--ink);
+      font-size: 0.88rem;
+      line-height: 1.55;
+      font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+    }
+
+    code {
+      font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+    }
+
+    .table-wrap {
+      margin-top: 1rem;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    th,
+    td {
+      padding: 0.9rem;
+      border-bottom: 1px solid var(--rule);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 0.76rem;
+      color: var(--muted);
+      background: #f8f8f8;
+    }
+
+    td {
+      background: rgba(255, 255, 255, 0.65);
+    }
+
+    .callout {
+      margin-top: 1rem;
+      padding: 1rem 1.15rem;
+      background: var(--panel-2);
+      border-left: 4px solid var(--black);
+    }
+
+    .footer-note {
+      margin-top: 1.6rem;
+      padding: 1.2rem;
+      border-top: 1px solid var(--rule);
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .split,
+      .code-row,
+      .check-grid,
+      .metric-strip,
+      .log-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page {
+        width: min(100vw - 1rem, 1180px);
+      }
+
+      .station,
+      .hero-note,
+      .build-structure,
+      .wide-figure,
+      .table-wrap {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">Real-Time Web Object Detection / Browser Deployment Walkthrough</p>
+      <h1>Deploy the frame loop before you polish the boxes.</h1>
+      <p class="lede">Most browser object-detection demos fail in deployment for ordinary reasons: the camera arrives at the wrong angle, the model sees a class it was never tuned for, the page drops cadence once overlays are enabled, and the team has no reliable path from a bounding box to an auditable report. This walkthrough starts with that friction instead of hiding it. It assumes a secure HTML5 camera feed, in-browser inference, a Flask backend, and SQLite persistence for detections, crops, timestamps, and user actions. The point is not to sell computer vision as magic. The point is to show how to build a loop that operators can trust when latency, false positives, and evidence retention matter more than a polished screenshot.</p>
+      <div class="hero-grid">
+        <section class="hero-note">
+          <p class="mini-label">Why this structure</p>
+          <p>The sequence below follows the work that actually determines field success: discovery on classes, angles, thresholds, and reporting needs; capture discipline in the browser; bounded handoff into inference; stable overlay rendering; evidence logging that survives review; and operator reporting that can defend a shift decision later. Each station is written as a deployment step, not a portfolio slogan.</p>
+        </section>
+        <aside class="build-structure">
+          <p class="mini-label">Step-by-step build structure</p>
+          <ol>
+            <li>Define classes, camera placement, thresholds, and report obligations before touching the UI.</li>
+            <li>Acquire video over HTTPS with explicit device constraints and predictable frame cadence.</li>
+            <li>Transfer only the right frame data into inference, keeping the UI thread readable.</li>
+            <li>Run the tuned detector with class-aware thresholds validated on held-out and field data.</li>
+            <li>Render overlays sparingly and preserve operator context rather than drawing every possibility.</li>
+            <li>Persist crops, timestamps, detections, and user actions into Flask plus SQLite.</li>
+            <li>Report throughput, false positives, and operator outcomes in role-based review surfaces.</li>
+          </ol>
+        </aside>
+      </div>
+    </header>
+
+    <section class="station" id="station-00">
+      <div class="station-head">
+        <span class="station-tag">Station 00</span>
+        <h2>Start Where Browser Vision Usually Breaks</h2>
+      </div>
+      <div class="split">
+        <div>
+          <p>Deployment friction starts in discovery, not in code. If the operations team cannot name the object classes that matter, the expected camera angle for each class, the threshold at which an alert becomes reportable, and the action expected from an operator, then the rest of the stack will be noisy by design. A detector trained on a broad public dataset can still fail in a plant or yard because the lens height, lighting pattern, motion blur, and background clutter are different from the training assumptions. That is why the build should open with class inventory, frame examples from target cameras, and a definition of what constitutes evidence instead of just what counts as a hit.</p>
+          <p>In practice, this project works best when the browser owns live perception and the backend owns audit persistence. The browser can acquire camera frames with low ceremony and give immediate feedback through local bounding boxes. The Flask layer can receive only the detections and crops worth keeping, assign durable identifiers, and write them into SQLite alongside timestamps and user actions. That split keeps latency low for the operator while keeping review, filtering, export, and analytics under controlled server logic. It also prevents the common mistake of treating every frame like a database event.</p>
+        </div>
+        <div>
+          <div class="metric-strip">
+            <div class="metric">
+              <span class="mini-label">Primary risk</span>
+              <strong>False trust</strong>
+            </div>
+            <div class="metric">
+              <span class="mini-label">Primary control</span>
+              <strong>Evidence log</strong>
+            </div>
+            <div class="metric">
+              <span class="mini-label">Primary budget</span>
+              <strong>Frame time</strong>
+            </div>
+          </div>
+          <div class="check-grid">
+            <div class="check-card">
+              <p class="mini-label">Discovery inputs</p>
+              <ul>
+                <li>Object classes and class confusion pairs</li>
+                <li>Camera angle, height, zoom, and occlusion zones</li>
+                <li>Alert thresholds and user response expectations</li>
+              </ul>
+            </div>
+            <div class="check-card">
+              <p class="mini-label">Model preparation</p>
+              <ul>
+                <li>Training set with representative device footage</li>
+                <li>Augmentation for glare, blur, tilt, and partial crops</li>
+                <li>Preprocessing aligned with browser inference resolution</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <figure class="wide-figure" aria-labelledby="rail-caption">
+      <svg viewBox="0 0 1440 360" role="img" aria-label="Monochrome frame rail showing capture, handoff, inference, render, crop log, and report stages with timing badges.">
+        <defs>
+          <linearGradient id="panelFill" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="100%" stop-color="#e7e7e7"/>
+          </linearGradient>
+        </defs>
+        <rect x="20" y="18" width="1400" height="324" rx="24" fill="#f7f7f7" stroke="#b6b6b6" stroke-width="2"/>
+        <text x="70" y="62" font-family="IBM Plex Mono, monospace" font-size="18" letter-spacing="2" fill="#5b5b5b">FRAME RAIL / SINGLE PASS THROUGH THE BROWSER LOOP</text>
+        <line x1="88" y1="190" x2="1350" y2="190" stroke="#111111" stroke-width="8" stroke-linecap="round"/>
+        <g fill="url(#panelFill)" stroke="#111111" stroke-width="2">
+          <rect x="70" y="100" width="180" height="84" rx="18"/>
+          <rect x="286" y="100" width="180" height="84" rx="18"/>
+          <rect x="502" y="100" width="180" height="84" rx="18"/>
+          <rect x="718" y="100" width="180" height="84" rx="18"/>
+          <rect x="934" y="100" width="180" height="84" rx="18"/>
+          <rect x="1150" y="100" width="180" height="84" rx="18"/>
+        </g>
+        <g font-family="IBM Plex Mono, monospace" font-size="17" fill="#111111">
+          <text x="96" y="129">CAPTURE</text>
+          <text x="96" y="153">getUserMedia</text>
+          <text x="96" y="176">video - canvas</text>
+
+          <text x="312" y="129">HANDOFF</text>
+          <text x="312" y="153">bitmap or tensor</text>
+          <text x="312" y="176">ring buffer gate</text>
+
+          <text x="528" y="129">INFERENCE</text>
+          <text x="528" y="153">class threshold</text>
+          <text x="528" y="176">NMS + cooldown</text>
+
+          <text x="744" y="129">RENDER</text>
+          <text x="744" y="153">overlay boxes</text>
+          <text x="744" y="176">operator hints</text>
+
+          <text x="960" y="129">CROP LOG</text>
+          <text x="960" y="153">encode evidence</text>
+          <text x="960" y="176">POST to Flask</text>
+
+          <text x="1176" y="129">REPORT</text>
+          <text x="1176" y="153">SQLite review</text>
+          <text x="1176" y="176">shift export</text>
+        </g>
+        <g fill="#111111">
+          <circle cx="160" cy="190" r="11"/>
+          <circle cx="376" cy="190" r="11"/>
+          <circle cx="592" cy="190" r="11"/>
+          <circle cx="808" cy="190" r="11"/>
+          <circle cx="1024" cy="190" r="11"/>
+          <circle cx="1240" cy="190" r="11"/>
+        </g>
+        <g font-family="IBM Plex Mono, monospace" font-size="15" text-anchor="middle">
+          <rect x="110" y="76" width="100" height="26" rx="13" fill="#111111"/>
+          <text x="160" y="94" fill="#ffffff">16.7 ms</text>
+          <rect x="326" y="76" width="100" height="26" rx="13" fill="#434343"/>
+          <text x="376" y="94" fill="#ffffff">2.3 ms</text>
+          <rect x="542" y="76" width="100" height="26" rx="13" fill="#111111"/>
+          <text x="592" y="94" fill="#ffffff">24 ms</text>
+          <rect x="758" y="76" width="100" height="26" rx="13" fill="#434343"/>
+          <text x="808" y="94" fill="#ffffff">3.8 ms</text>
+          <rect x="974" y="76" width="100" height="26" rx="13" fill="#111111"/>
+          <text x="1024" y="94" fill="#ffffff">async 40 ms</text>
+          <rect x="1180" y="76" width="120" height="26" rx="13" fill="#434343"/>
+          <text x="1240" y="94" fill="#ffffff">operator paced</text>
+        </g>
+        <path d="M1024 236 C1080 270, 1160 270, 1240 246" fill="none" stroke="#757575" stroke-width="4" stroke-dasharray="8 8"/>
+        <text x="1012" y="292" font-family="IBM Plex Mono, monospace" font-size="15" fill="#5b5b5b">async evidence branch keeps report work off the hot frame path</text>
+      </svg>
+      <figcaption id="rail-caption"><span class="caption-kicker">Figure 01</span>The main rail should remain narrow and predictable: capture, handoff, inference, and render stay on the hot path; crop logging and report generation branch out asynchronously so the browser can keep moving.</figcaption>
+    </figure>
+
+    <section class="station" id="station-01">
+      <div class="station-head">
+        <span class="station-tag">Station 01</span>
+        <h2>Acquire the Camera Feed With a Known Cadence</h2>
+      </div>
+      <p>Secure camera access is not a checkbox; it shapes the whole deployment. Browser capture should run over HTTPS, request the exact camera constraints the operation supports, and establish a repeatable cadence before the detector is even loaded. That means deciding whether the camera is fixed or selectable, whether the detector reads every visible frame or every nth frame, and what the fallback is when permissions are denied or the camera reinitializes. A stable 720p stream with a disciplined inference interval is usually more valuable than an unstable 1080p stream that drifts in and out of thermal or CPU pressure.</p>
+      <p>The simplest frame loop is still the most defensible: draw the video onto a canvas at a fixed schedule, gate the transfer so a second frame does not enter inference while the first one is still running, and expose enough timing to tell whether the page is falling behind. That is where field latency becomes tangible. Operators do not care whether the browser used a clever abstraction; they care whether the box appears before the object has already left the scene. This is also where device-specific training pays off. If the model was tuned on footage that looks like the actual camera, you can usually keep the input resolution modest and the cadence regular.</p>
+      <div class="code-row">
+        <div class="code-block">
+          <div class="code-label">Frame cadence / browser side</div>
+          <pre><code>const targetMs = 100;
+let busy = false;
+
+setInterval(async () =&gt; {
+  if (busy || video.readyState &lt; 2) return;
+  busy = true;
+
+  ctx.drawImage(video, 0, 0, width, height);
+  const frame = ctx.getImageData(0, 0, width, height);
+  const detections = await detect(frame);
+  renderOverlay(detections);
+
+  queueEvidence(detections, frame);
+  busy = false;
+}, targetMs);</code></pre>
+        </div>
+        <div class="code-block">
+          <div class="code-label">What to measure immediately</div>
+          <pre><code>capture_ms
+inference_ms
+render_ms
+evidence_queue_depth
+camera_restarts
+frames_skipped_due_to_backpressure
+operator_ack_latency</code></pre>
+        </div>
+      </div>
+      <div class="callout">
+        Camera discovery is part of deployment, not setup. The held-out test set may look good and still underperform if the production mount introduces compression shimmer, backlight, or partial occlusion that never appeared in training.
+      </div>
+    </section>
+
+    <section class="station" id="station-02">
+      <div class="station-head">
+        <span class="station-tag">Station 02</span>
+        <h2>Keep the Capture and Transfer Loop Narrow</h2>
+      </div>
+      <p>The transfer loop is where in-browser deployments either stay operational or become demos that freeze under load. Every frame moved from the video element into a canvas, bitmap, or tensor costs time and memory churn, and those costs compound once detections trigger crop extraction and network writes. The design target should be narrow: transfer only the pixels the model needs, preserve a single in-flight inference unit, and treat evidence capture as a side lane instead of part of the main rail. That prevents the classic problem where logging a crop blocks the next frame and causes the detection overlay to lag behind the scene.</p>
+      <p>If the project uses a worker or an offscreen pipeline, that helps, but the deeper rule is the same even without it: keep the handoff bounded and observable. Use a ring buffer depth of one or two rather than an unbounded queue, because stale frames are often worse than dropped frames. Once the page is behind, inference on old imagery can produce technically correct boxes that are operationally useless. The operator sees a box attached to a past event and loses trust. By constraining the transfer loop you preserve temporal honesty, which matters more than raw frame count in most browser-based inspection flows.</p>
+      <p>That discipline also simplifies the backend contract. Flask does not need a firehose of every frame. It needs compact, structured evidence: detection id, class label, confidence, frame timestamp, crop blob or crop reference, and any user action that qualifies the event later. Once those fields are clear, the browser can decide when to emit them and the server can persist them without pretending to be part of the frame loop itself.</p>
+    </section>
+
+    <section class="station" id="station-03">
+      <div class="station-head">
+        <span class="station-tag">Station 03</span>
+        <h2>Run Inference Like a Filter, Not a Firehose</h2>
+      </div>
+      <div class="split">
+        <div>
+          <p>Inference should behave like a disciplined filter that protects operators from noise. That starts with a model tuned on the right dataset: representative device footage, augmentation for the blur and glare patterns the site actually produces, and preprocessing that matches the browser input size. A detector that was trained at one resolution but deployed at another without calibration can turn thresholding into guesswork. Because this project is deployed in-browser, the model choice is constrained by practical latency. The right question is not just whether the detector reaches strong precision and recall on a held-out set. The right question is whether it reaches acceptable precision and recall at the cadence the browser can sustain in field trials.</p>
+          <p>Thresholding should be class-aware. Some classes deserve conservative thresholds because a false positive costs operator attention every few seconds. Other classes deserve aggressive capture because the cost of missing them is higher than the cost of reviewing them later. Non-maximum suppression, temporal cooldowns, and per-class persistence rules are more useful in deployment than another paragraph about generic accuracy. When supervisors review reports, they will ask how often the system cried wolf and how often it missed something important. Those answers come from thresholds paired with logging, not from model branding.</p>
+        </div>
+        <div>
+          <div class="check-card">
+            <p class="mini-label">Inference controls worth exposing</p>
+            <ul>
+              <li>Per-class confidence threshold</li>
+              <li>Intersection-over-union for suppression</li>
+              <li>Minimum box area and aspect filters</li>
+              <li>Cooldown window before repeat logging</li>
+              <li>Confidence band that requires operator review</li>
+            </ul>
+          </div>
+          <div class="check-card" style="margin-top: 0.8rem;">
+            <p class="mini-label">Validation that matters</p>
+            <ul>
+              <li>Held-out precision and recall by class</li>
+              <li>False-positive rate per hour in field trials</li>
+              <li>Detection-to-report usefulness, not just hit rate</li>
+              <li>Performance on difficult angles and clutter</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="code-row">
+        <div class="code-block">
+          <div class="code-label">Threshold policy</div>
+          <pre><code>const thresholds = {
+  pallet: 0.72,
+  helmet_missing: 0.58,
+  forklift: 0.66
+};
+
+const accepted = rawDetections
+  .filter(d =&gt; d.score &gt;= thresholds[d.label])
+  .filter(d =&gt; d.box.area &gt;= MIN_AREA)
+  .filter(notInCooldown);</code></pre>
+        </div>
+        <div class="code-block">
+          <div class="code-label">Deployment rule</div>
+          <pre><code>good_model_score
+  AND sustainable_browser_latency
+  AND reviewable_evidence
+  AND acceptable_false_positive_cost
+= deployable detector</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="station" id="station-04">
+      <div class="station-head">
+        <span class="station-tag">Station 04</span>
+        <h2>Render Only What Helps the Operator Decide</h2>
+      </div>
+      <p>Rendering is easy to overbuild. The browser can draw elegant boxes, labels, traces, and micro-animations, but each one steals attention and frame time. The practical overlay keeps labels legible, confidence values restrained, and the canvas redraw limited to the areas that changed. If the operator already knows the camera view, the UI does not need decorative chrome. It needs stable geometry, obvious event state, and a way to tell whether a box is live, cooling down, or already logged. Even the difference between a thin outline and a filled banner can matter when the camera feed is dense.</p>
+      <p>A good rendering layer also exposes uncertainty honestly. If the model score is inside a review band, show that without dramatizing it. If the system has dropped frames or the camera stalled, say so in plain language. Hiding delay behind a smooth overlay is counterproductive because it encourages trust in stale data. The page should feel operational: more like an instrument panel than a marketing microsite. That is why the monochrome treatment fits this subject. It keeps hierarchy readable without pretending the detector is more certain than it is.</p>
+      <div class="callout">
+        Rendering should never decide persistence on its own. A box drawn on screen is a transient observation. Evidence starts only when the browser emits a durable detection record and, when required, a crop tied to a timestamp and later user action.
+      </div>
+    </section>
+
+    <figure class="wide-figure" aria-labelledby="log-caption">
+      <svg viewBox="0 0 1440 420" role="img" aria-label="Logging and reporting companion diagram for browser detections, Flask intake, SQLite records, crop persistence, reviewer actions, and export paths.">
+        <rect x="20" y="18" width="1400" height="384" rx="24" fill="#f8f8f8" stroke="#b6b6b6" stroke-width="2"/>
+        <text x="68" y="62" font-family="IBM Plex Mono, monospace" font-size="18" letter-spacing="2" fill="#5b5b5b">LOGGING / REPORTING COMPANION FLOW</text>
+        <g stroke="#111111" stroke-width="2">
+          <rect x="70" y="104" width="250" height="182" rx="18" fill="#ffffff"/>
+          <rect x="390" y="128" width="210" height="134" rx="18" fill="#ececec"/>
+          <rect x="670" y="88" width="250" height="96" rx="18" fill="#ffffff"/>
+          <rect x="670" y="208" width="250" height="96" rx="18" fill="#ececec"/>
+          <rect x="990" y="88" width="178" height="96" rx="18" fill="#ffffff"/>
+          <rect x="990" y="208" width="178" height="96" rx="18" fill="#ffffff"/>
+          <rect x="1218" y="148" width="140" height="118" rx="18" fill="#ececec"/>
+        </g>
+        <g font-family="IBM Plex Mono, monospace" font-size="16" fill="#111111">
+          <text x="94" y="138">BROWSER EVENT PACK</text>
+          <text x="94" y="166">detection_id</text>
+          <text x="94" y="190">frame_ts</text>
+          <text x="94" y="214">label / score / box</text>
+          <text x="94" y="238">crop_blob?</text>
+          <text x="94" y="262">operator_context</text>
+
+          <text x="428" y="164">FLASK INTAKE</text>
+          <text x="428" y="188">validate</text>
+          <text x="428" y="212">dedupe</text>
+          <text x="428" y="236">assign shift keys</text>
+
+          <text x="694" y="126">SQLITE DETECTION LOG</text>
+          <text x="694" y="150">frame_ts / class / score</text>
+          <text x="694" y="174">camera_id / shift_id</text>
+
+          <text x="694" y="246">CROP PERSISTENCE</text>
+          <text x="694" y="270">blob path or bytes</text>
+          <text x="694" y="294">linked by detection_id</text>
+
+          <text x="1014" y="126">REVIEW QUEUE</text>
+          <text x="1014" y="150">confirm</text>
+          <text x="1014" y="174">dismiss</text>
+
+          <text x="1014" y="246">ANALYTICS</text>
+          <text x="1014" y="270">filter / trend</text>
+          <text x="1014" y="294">false positive rate</text>
+
+          <text x="1242" y="186">EXPORT</text>
+          <text x="1242" y="210">CSV / PDF</text>
+          <text x="1242" y="234">audit packet</text>
+        </g>
+        <g stroke="#111111" stroke-width="4" fill="none" stroke-linecap="round">
+          <path d="M320 194 H390"/>
+          <path d="M600 170 H670"/>
+          <path d="M600 220 H670"/>
+          <path d="M920 136 H990"/>
+          <path d="M920 256 H990"/>
+          <path d="M1168 148 H1218"/>
+          <path d="M1168 256 H1218"/>
+        </g>
+        <g fill="#111111">
+          <polygon points="382,186 398,194 382,202"/>
+          <polygon points="662,162 678,170 662,178"/>
+          <polygon points="662,212 678,220 662,228"/>
+          <polygon points="982,128 998,136 982,144"/>
+          <polygon points="982,248 998,256 982,264"/>
+          <polygon points="1210,140 1226,148 1210,156"/>
+          <polygon points="1210,248 1226,256 1210,264"/>
+        </g>
+        <text x="70" y="346" font-family="IBM Plex Mono, monospace" font-size="15" fill="#5b5b5b">review actions flow back as durable user events so quality can be measured by shift, class, and camera instead of by anecdote</text>
+      </svg>
+      <figcaption id="log-caption"><span class="caption-kicker">Figure 02</span>The reporting side should join browser detections to durable server records. SQLite is enough when the event schema is disciplined and reviewer actions are treated as first-class evidence instead of afterthought notes.</figcaption>
+    </figure>
+
+    <section class="station" id="station-05">
+      <div class="station-head">
+        <span class="station-tag">Station 05</span>
+        <h2>Log Detections as Evidence, Not Just Events</h2>
+      </div>
+      <p>Evidence logging is where the project becomes useful beyond the live overlay. The backend should persist more than a label and a score. It should store the detection id, timestamp, camera or stream identifier, class, confidence, normalized or pixel box coordinates, crop reference, and the later user action that explains what happened next. This is where a lightweight Flask plus SQLite stack is a sensible fit. It is simple enough to keep deployment friction low, but structured enough to support review, filter, export, and audit. What matters is not the database brand; it is the join discipline between live detections, cropped images, and operator decisions.</p>
+      <p>The crop itself should be generated with restraint. Persisting every candidate crop will inflate storage and distract reviewers. A better policy is to log only detections that clear the threshold and respect the cooldown window, then preserve the crop that explains the box most clearly. If the operation needs image evidence for reports, the crop should be linked by detection id and timestamp so it can be recalled during a shift review or included in export packets later. If the operation does not need image retention for every class, do not keep it by default. Logging is not neutral; it defines retention cost and privacy exposure.</p>
+      <div class="code-row">
+        <div class="code-block">
+          <div class="code-label">Detection log request</div>
+          <pre><code>await fetch("/api/detections", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    detection_id,
+    frame_ts,
+    label,
+    score,
+    box,
+    crop_token,
+    camera_id,
+    user_action: null
+  })
+});</code></pre>
+        </div>
+        <div class="code-block">
+          <div class="code-label">Flask persistence sketch</div>
+          <pre><code>@app.post("/api/detections")
+def create_detection():
+    payload = request.get_json()
+    db.execute(
+        """
+        insert into detections
+        (detection_id, frame_ts, label, score, x, y, w, h, crop_path)
+        values (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        to_row(payload),
+    )
+    return {"ok": True}, 201</code></pre>
+        </div>
+      </div>
+      <div class="log-grid" style="grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 1rem;">
+        <div class="log-card">
+          <p class="mini-label">Required fields</p>
+          <p>detection id, timestamp, class, confidence, box, camera id, shift id</p>
+        </div>
+        <div class="log-card">
+          <p class="mini-label">Useful companions</p>
+          <p>crop path, operator note, dismissal reason, escalation state</p>
+        </div>
+        <div class="log-card">
+          <p class="mini-label">Quality loop</p>
+          <p>review verdicts become labels for threshold tuning and future retraining</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="station" id="station-06">
+      <div class="station-head">
+        <span class="station-tag">Station 06</span>
+        <h2>Trade Throughput Against Trust Explicitly</h2>
+      </div>
+      <p>Throughput tradeoffs should be stated plainly because they drive both user trust and infrastructure cost. Reading every frame can maximize sensitivity but can also overrun the browser, generate redundant logs, and make reporting harder to review. Reading every third or sixth frame lowers compute pressure and often preserves enough signal when the camera is fixed and object motion is predictable. Encoding crops at lower quality or sending only one crop per cooldown window can protect storage and network budgets. The correct setting depends on the class, the motion speed, and how expensive a miss is compared with a false alarm.</p>
+      <p>This is where field trials matter more than generic benchmarks. Held-out precision and recall tell you whether the detector sees the right objects under controlled conditions. Field trials tell you whether the browser, camera, and operator can sustain the loop during real shifts. Measure frames skipped because inference was busy, detections dismissed by reviewers, crop upload failures, and operator acknowledgment latency. Those numbers turn deployment into an engineering system instead of a subjective demo. If false positives spike at a certain camera angle or at shift change lighting, adjust the threshold, crop policy, or mounting guidance before you adjust the storytelling.</p>
+      <p>Backpressure policy should also be explicit in operator documentation. When the page is saturated, should it drop the oldest pending frame, suppress new crop uploads, or reduce the sampling cadence until the queue recovers? There is no neutral answer. Dropping old frames preserves timeliness but may miss a sequence that would have helped a supervisor understand an event. Persisting every crop preserves context but can block the live loop and reduce trust in what the operator is seeing now. The right policy is the one that matches the reporting obligation for the site and the tolerance for stale overlays.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tradeoff</th>
+              <th>Faster choice</th>
+              <th>Safer choice</th>
+              <th>Operational consequence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Frame cadence</td>
+              <td>Sample every 150 to 250 ms</td>
+              <td>Sample every visible frame</td>
+              <td>Lower compute load versus better coverage of short-lived events</td>
+            </tr>
+            <tr>
+              <td>Input size</td>
+              <td>Smaller inference canvas</td>
+              <td>Larger inference canvas</td>
+              <td>Lower latency versus better small-object recall</td>
+            </tr>
+            <tr>
+              <td>Crop retention</td>
+              <td>Keep only threshold-clearing events</td>
+              <td>Keep all candidates</td>
+              <td>Controlled storage versus fuller audit trail with more review noise</td>
+            </tr>
+            <tr>
+              <td>Thresholding</td>
+              <td>Aggressive capture</td>
+              <td>Conservative capture</td>
+              <td>Fewer misses versus fewer false positives and less operator fatigue</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="station" id="station-07">
+      <div class="station-head">
+        <span class="station-tag">Station 07</span>
+        <h2>Finish With Operator Reporting, Not Just a Live Demo</h2>
+      </div>
+      <p>The system is finished only when the reporting loop is usable by different roles. Operators need a live view with just enough status to trust the feed. Supervisors need filters by class, camera, shift, time window, and review outcome. Analysts need exports that preserve timestamps, crop references, and user actions so they can compare false-positive rate, recall pain points, and escalation patterns over time. Role-based access matters here because the person acknowledging an event is not always the person auditing a trend later. Flask plus SQLite can support that if the schema is clean and the UI respects task boundaries.</p>
+      <p>A pragmatic report surface answers concrete questions: Which detections were confirmed? Which were dismissed and why? Which camera angles generated repeat noise? How many crops were retained for this class this week? Did the threshold change after the last field trial improve operator workload or just shift the error elsewhere? Once those answers are available, the detector can be maintained responsibly. Without them, even a good model degrades into opinion. The browser overlay makes the system visible; the report makes it governable.</p>
+      <p>This is also the right place to close the quality loop back into training. Reviewer actions are not just operational metadata. They are labels for future threshold tuning, dataset expansion, and camera guidance. A dismissed detection can indicate poor calibration, a bad mount angle, or an edge case the model never saw. A confirmed detection with weak confidence can indicate that preprocessing should change or that the browser resolution is too low. Reporting therefore is not a separate product feature. It is the mechanism that keeps live inference honest over time.</p>
+      <p>The export path should be treated as part of the product contract, not an administrative afterthought. If a supervisor needs a shift packet, the system should be able to assemble one with the detection summary, the retained crops, the reviewer decisions, and the exact timestamps used to make those decisions. If an analyst needs a false-positive study, the same records should filter cleanly by class, camera, and dismissal reason. That is how browser vision stops being a live novelty and becomes an accountable operating surface with evidence that can survive review outside the moment of capture.</p>
+      <div class="callout">
+        A credible browser vision deployment ends with a report packet that ties together the live frame loop, the persisted crop, and the operator decision. If that packet cannot be generated cleanly, the page is still a prototype even when the boxes look good.
+      </div>
+    </section>
+
+    <footer class="footer-note">
+      Monochrome by design: no external CSS, no runtime JavaScript, no framework layer, and no imagery beyond inline SVG. The useful shape of this deployment remains the same at closeout: discovery defines what is worth seeing, the browser owns responsive perception, Flask plus SQLite own durable memory, and the reporting surface turns detections, crops, timestamps, and user actions into something supervisors can review without guesswork.
+    </footer>
+  </main>
+</body>
+</html>
