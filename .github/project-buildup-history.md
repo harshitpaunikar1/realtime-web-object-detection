@@ -16,3 +16,7 @@
 
 - Task summary: One more pass: spent time just reading back through everything to make sure it still made sense end to end.
 - Deliverable: Solid now, moving on.
+## 2025-06-28 - Day 2: Research pass
+
+- Task summary: Weekend fix — the visualizations had overlapping labels in narrow viewports. Adjusted the figure size and padding.
+- Deliverable: Pushed before end of day.
