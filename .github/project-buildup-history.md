@@ -44,3 +44,7 @@
 
 - Task summary: Noticed something off from this morning — added one more evaluation metric that felt missing from the earlier comparison.
 - Deliverable: Small fix, clean result.
+## 2025-07-06 - Day 7: HTML scaffold
+
+- Task summary: Weekend fix — the visualizations had overlapping labels in narrow viewports. Adjusted the figure size and padding.
+- Deliverable: Small fix, clean result.
