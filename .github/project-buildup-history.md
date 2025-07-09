@@ -72,3 +72,7 @@
 
 - Task summary: Spent another hour on this: added inline comments in the dense sections — would have been confusing to revisit without them.
 - Deliverable: Cleaner than this morning's version.
+## 2025-07-09 - Day 10: Artifacts
+
+- Task summary: Noticed something off from this morning — ran the whole thing end to end again after a fresh look. Caught a stale import that broke the flow.
+- Deliverable: One of those satisfying small wins.
