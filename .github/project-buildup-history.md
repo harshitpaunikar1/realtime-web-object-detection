@@ -68,3 +68,7 @@
 
 - Task summary: One more pass: updated the requirements file — had missed one indirect dependency.
 - Deliverable: Nothing dramatic — just keeping things tidy.
+## 2025-07-09 - Day 10: Artifacts
+
+- Task summary: Spent another hour on this: added inline comments in the dense sections — would have been confusing to revisit without them.
+- Deliverable: Cleaner than this morning's version.
