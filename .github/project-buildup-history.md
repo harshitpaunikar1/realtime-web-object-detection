@@ -76,3 +76,7 @@
 
 - Task summary: Noticed something off from this morning — ran the whole thing end to end again after a fresh look. Caught a stale import that broke the flow.
 - Deliverable: One of those satisfying small wins.
+## 2025-07-10 - Day 11: README check
+
+- Task summary: Closer to the end, I was mostly tightening things up instead of inventing new scope. The job for the day was to write a README that explains the problem, solution, and how to review the project so the final result looked a bit more complete. I was not trying to add anything fancy here, just making sure the thing looked complete enough to show someone. There were a few moving parts here, so I kept simplifying the plan in my head before touching anything else.
+- Deliverable: Ended the day with project README in hand, plus a few side notes on what still needed fixing later. There were still a couple of loose parts, but nothing serious enough to block the next step.
