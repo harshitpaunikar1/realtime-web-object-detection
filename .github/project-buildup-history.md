@@ -18,7 +18,7 @@
 - Deliverable: Solid now, moving on.
 ## 2025-06-28 - Day 2: Research pass
 
-- Task summary: Weekend fix — the visualizations had overlapping labels in narrow viewports. Adjusted the figure size and padding.
+- Task summary: Weekend fix - the visualizations had overlapping labels in narrow viewports. Adjusted the figure size and padding.
 - Deliverable: Pushed before end of day.
 ## 2025-06-30 - Day 3: Scope pass
 
@@ -42,11 +42,11 @@
 - Deliverable: Ended the day with initial UI structure in hand, plus a few side notes on what still needed fixing later. I also left myself a few rough reminders for the next day so I would not have to rediscover the same context again.
 ## 2025-07-04 - Day 7: HTML scaffold
 
-- Task summary: Noticed something off from this morning — added one more evaluation metric that felt missing from the earlier comparison.
+- Task summary: Noticed something off from this morning - added one more evaluation metric that felt missing from the earlier comparison.
 - Deliverable: Small fix, clean result.
 ## 2025-07-06 - Day 7: HTML scaffold
 
-- Task summary: Weekend fix — the visualizations had overlapping labels in narrow viewports. Adjusted the figure size and padding.
+- Task summary: Weekend fix - the visualizations had overlapping labels in narrow viewports. Adjusted the figure size and padding.
 - Deliverable: Small fix, clean result.
 ## 2025-07-07 - Day 8: Styling
 
@@ -66,15 +66,15 @@
 - Deliverable: Ended the day with support visuals in hand, plus a few side notes on what still needed fixing later. I also left myself a few rough reminders for the next day so I would not have to rediscover the same context again.
 ## 2025-07-09 - Day 10: Artifacts
 
-- Task summary: One more pass: updated the requirements file — had missed one indirect dependency.
-- Deliverable: Nothing dramatic — just keeping things tidy.
+- Task summary: One more pass: updated the requirements file - had missed one indirect dependency.
+- Deliverable: Nothing dramatic - just keeping things tidy.
 ## 2025-07-09 - Day 10: Artifacts
 
-- Task summary: Spent another hour on this: added inline comments in the dense sections — would have been confusing to revisit without them.
+- Task summary: Spent another hour on this: added inline comments in the dense sections - would have been confusing to revisit without them.
 - Deliverable: Cleaner than this morning's version.
 ## 2025-07-09 - Day 10: Artifacts
 
-- Task summary: Noticed something off from this morning — ran the whole thing end to end again after a fresh look. Caught a stale import that broke the flow.
+- Task summary: Noticed something off from this morning - ran the whole thing end to end again after a fresh look. Caught a stale import that broke the flow.
 - Deliverable: One of those satisfying small wins.
 ## 2025-07-10 - Day 11: README check
 
